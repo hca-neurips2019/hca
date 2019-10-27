@@ -1,3 +1,5 @@
+# Classes for the algorithms
+
 class StateHCA(object):
   def __init__(self, n_s, n_a):
     self.h_dim = n_s
@@ -10,22 +12,22 @@ class StateHCA(object):
     dlogits_h = np.zeros_like(h)
     
     for i in range(T):
-      xs, a_s = states[i], actions[i]
+      x_s, a_s = states[i], actions[i]
       G = ((gamma**np.arange(T - i)) * rewards[i:]).sum()
       G_hca = np.zeros(self.n_a)
       
       for j in range(i, T):
-        xt, r = states[j], rewards[j]
-        hca_factor = h[:, xs, xt].T - pi[xs, :] 
+        x_t, r = states[j], rewards[j]
+        hca_factor = h[:, x_s, x_t].T - pi[x_s, :] 
         G_hca += gamma**(j - i) * r * hca_factor
 
-        dlogits_h[a_s, xs, xt] += 1
-        dlogits_h[:, xs, xt] -= h[:, xs, xt]
+        dlogits_h[a_s, x_s, x_t] += 1
+        dlogits_h[:, x_s, x_t] -= h[:, x_s, x_t]
 
       for a in range(self.n_a):
-        dlogits[xs, a] += G_hca[a]
-        dlogits[xs] -= pi[xs] * G_hca[a]
-      dV[xs] += (G - V[xs])
+        dlogits[x_s, a] += G_hca[a]
+        dlogits[x_s] -= pi[x_s] * G_hca[a]
+      dV[x_s] += (G - V[x_s])
 
     return dlogits, dV, dlogits_h
 
